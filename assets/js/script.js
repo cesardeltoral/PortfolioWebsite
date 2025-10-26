@@ -149,6 +149,7 @@ form.addEventListener("submit", (e) => {
     .catch((error) => {
       console.error("Error!", error);
       alert("Thank you! Your form is submitted successfully.");
+      form.reset();
     })
     .finally(() => {
       submitBtn.disabled = false;
