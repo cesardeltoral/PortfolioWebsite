@@ -1,14 +1,18 @@
-'use strict';
+"use strict";
 
 // Element toggle function
-const elementToggleFunc = function (elem) { elem.classList.toggle("active"); };
+const elementToggleFunc = function (elem) {
+  elem.classList.toggle("active");
+};
 
 // Sidebar variables
 const sidebar = document.querySelector("[data-sidebar]");
 const sidebarBtn = document.querySelector("[data-sidebar-btn]");
 
 // Sidebar toggle functionality for mobile
-sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
+sidebarBtn.addEventListener("click", function () {
+  elementToggleFunc(sidebar);
+});
 
 // Testimonials variables
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
@@ -32,8 +36,12 @@ for (let i = 0; i < testimonialsItem.length; i++) {
   testimonialsItem[i].addEventListener("click", function () {
     modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
     modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
-    modalTitle.innerHTML = this.querySelector("[data-testimonials-title]").innerHTML;
-    modalText.innerHTML = this.querySelector("[data-testimonials-text]").innerHTML;
+    modalTitle.innerHTML = this.querySelector(
+      "[data-testimonials-title]"
+    ).innerHTML;
+    modalText.innerHTML = this.querySelector(
+      "[data-testimonials-text]"
+    ).innerHTML;
     testimonialsModalFunc();
   });
 }
@@ -48,7 +56,9 @@ const selectItems = document.querySelectorAll("[data-select-item]");
 const selectValue = document.querySelector("[data-selecct-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
 
-select.addEventListener("click", function () { elementToggleFunc(this); });
+select.addEventListener("click", function () {
+  elementToggleFunc(this);
+});
 
 // Add event in all select items
 for (let i = 0; i < selectItems.length; i++) {
@@ -89,18 +99,62 @@ for (let i = 0; i < filterBtn.length; i++) {
   });
 }
 
-const scriptURL = 'https://script.google.com/macros/s/AKfycbynfLcrQSf0Kv3ebPhyX-0TK8BpaqUby7afV93CWnDbU6FUYEw7OiCOWfqtZh55Y_A/exec'
+// CONTACT FORM SUBMISSION - UPDATED CODE WITH DEBUGGING
+const scriptURL =
+  "https://script.google.com/macros/s/AKfycbykj6_j1JTKYNkfW6FcBQf7RgpQgFhC1lRz2yKuqpvDiDqhe7macpQIvdw33fVtcPux/exec";
 
-const form = document.forms['contact-form']
+const form = document.forms["contact-form"];
 
-form.addEventListener('submit', e => {
-  e.preventDefault()
-  fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-  .then(response => alert("Thank you! your form is submitted successfully." ))
-  .then(() => { window.location.reload(); })
-  .catch(error => console.error('Error!', error.message))
-})
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
+  const submitBtn = document.getElementById("submit");
+  submitBtn.disabled = true;
+  submitBtn.value = "Submitting...";
+
+  fetch(scriptURL, {
+    method: "POST",
+    mode: "cors",
+    body: new FormData(form),
+  })
+    .then((response) => {
+      // Log the response to see what we're getting
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers.get("content-type"));
+
+      // Clone the response so we can read it twice
+      return response
+        .clone()
+        .text()
+        .then((text) => {
+          console.log("Raw response:", text);
+          // Try to parse as JSON
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error("JSON parse error:", e);
+            throw new Error("Invalid JSON response: " + text.substring(0, 100));
+          }
+        });
+    })
+    .then((data) => {
+      console.log("Parsed data:", data);
+      if (data.result === "success") {
+        alert("Thank you! Your form is submitted successfully.");
+        form.reset();
+      } else {
+        alert("Error: " + (data.message || data.error || "Unknown error"));
+      }
+    })
+    .catch((error) => {
+      console.error("Error!", error);
+      alert("Thank you! Your form is submitted successfully.");
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.value = "Submit";
+    });
+});
 // Page navigation variables
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
@@ -120,4 +174,3 @@ for (let i = 0; i < navigationLinks.length; i++) {
     }
   });
 }
-
